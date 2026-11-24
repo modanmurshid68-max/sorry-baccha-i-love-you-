@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>सॉरी बच्चा 🥺</title>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Mukta:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#2b1535;--card:#3b1e49;--pink:#ff8fab;--lilac:#c9a7ff;--text:#fff1f4;--soft:#e8cfe0}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 50% 0%,#4a2360 0%,var(--bg) 70%);color:var(--text);font-family:'Mukta',sans-serif;font-size:19px;line-height:1.7;display:flex;align-items:center;justify-content:center;padding:20px;overflow-x:hidden}
+.card{background:var(--card);border:1px solid rgba(255,143,171,.25);border-radius:28px;padding:34px 28px;max-width:520px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35);position:relative;z-index:2}
+h1{font-family:'Kalam',cursive;font-size:clamp(2.4rem,9vw,3.4rem);line-height:1.15;margin:0 0 14px;color:var(--pink)}
+h2{font-family:'Kalam',cursive;font-size:clamp(1.5rem,6vw,2rem);line-height:1.4;margin:0 0 22px}
+p{margin:0 0 14px;color:var(--soft)}
+.btns{display:flex;gap:16px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:84px;margin-top:10px}
+button{font-family:'Kalam',cursive;font-size:1.25rem;border:0;border-radius:999px;padding:12px 34px;cursor:pointer;transition:transform .15s}
+button:focus-visible{outline:3px solid var(--lilac);outline-offset:3px}
+.yes{background:var(--pink);color:#3b1030;font-weight:700}
+.yes:hover{transform:scale(1.06)}
+.no{background:#5a3a6b;color:var(--text);z-index:5;transition:left .25s ease,top .25s ease}
+.hint{min-height:1.7em;font-size:.95rem;color:var(--lilac);margin-top:12px}
+.dots{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
+.dots i{width:10px;height:10px;border-radius:50%;background:#5a3a6b}
+.dots i.on{background:var(--pink)}
+.promise{text-align:left;background:rgba(255,143,171,.1);border-radius:18px;padding:16px 20px;margin:18px 0}
+.promise p{margin:6px 0;color:var(--text)}
+.heart{position:fixed;bottom:-40px;font-size:24px;opacity:.7;animation:up linear forwards;pointer-events:none;z-index:1}
+@keyframes up{to{transform:translateY(-110vh) rotate(30deg);opacity:0}}
+@media (prefers-reduced-motion:reduce){.heart{display:none}.no{transition:none}}
+</style>
+</head>
+<body>
+<main class="card" id="app"></main>
+
+<script>
+// ✏️ यहाँ अपनी जीएफ का नाम / प्यार का नाम लिखो (खाली छोड़ सकते हो)
+const NAME = "बच्चा";
+
+const questions = [
+  "क्या तुम मुझसे अभी भी थोड़ा-सा प्यार करती हो? 🥺",
+  "क्या मुझे एक और चांस मिल सकता है?",
+  "क्या तुम मुझे माफ़ कर दोगी?"
+];
+const dodgeLines = [
+  "अरे, 'नहीं' दबाने की कोशिश भी मत करना 😤",
+  "ये बटन आज छुट्टी पर है 😌",
+  "पकड़ कर दिखाओ! 😜",
+  "No का ऑप्शन अभी बंद है 🙈",
+  "'हाँ' बहुत पास है, देखो ज़रा 🥹",
+  "इतना गुस्सा? मैं तो सॉरी बोल चुका 😭"
+];
+
+const app = document.getElementById('app');
+let step = -1, tries = 0;
+
+function intro(){
+  app.innerHTML = `
+    <h1>सॉरी ${NAME} 🥺</h1>
+    <p>जो हुआ उसमें मेरी गलती थी, और मैं उसकी पूरी ज़िम्मेदारी लेता हूँ। मुझे पता है तुम्हें बुरा लगा, और गुस्सा होने का हक़ है तुम्हें।</p>
+    <p><b style="color:var(--text)">प्लीज़, रिलेशन खत्म मत करो।</b><br>मुझे बस एक और चांस दे दो। आगे ऐसी गलती नहीं होगी, ये मेरा वादा है।</p>
+    <p>चलो, एक छोटा-सा क्विज़ खेलते हैं?</p>
+    <div class="btns"><button class="yes" id="start">चलो 💗</button></div>`;
+  document.getElementById('start').onclick = () => { step = 0; question(); };
+}
+
+function question(){
+  tries = 0;
+  const dots = questions.map((_, i) => `<i class="${i <= step ? 'on' : ''}"></i>`).join('');
+  app.innerHTML = `
+    <div class="dots">${dots}</div>
+    <h2>${questions[step]}</h2>
+    <div class="btns">
+      <button class="yes" id="yes">हाँ 💗</button>
+      <button class="no" id="no">नहीं</button>
+    </div>
+    <div class="hint" id="hint"></div>`;
+  const yes = document.getElementById('yes'), no = document.getElementById('no');
+  yes.onclick = () => { step++; step < questions.length ? question() : finish(); };
+
+  const dodge = (e) => {
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    tries++;
+    const pad = 12, w = no.offsetWidth, h = no.offsetHeight;
+    no.style.position = 'fixed';
+    no.style.left = (pad + Math.random() * (window.innerWidth - w - pad * 2)) + 'px';
+    no.style.top  = (pad + Math.random() * (window.innerHeight - h - pad * 2)) + 'px';
+    yes.style.transform = `scale(${Math.min(1 + tries * 0.08, 1.6)})`;
+    document.getElementById('hint').textContent = dodgeLines[(tries - 1) % dodgeLines.length];
+  };
+  no.addEventListener('pointerenter', dodge);
+  no.addEventListener('pointerdown', dodge);
+  no.addEventListener('touchstart', dodge, { passive: false });
+  no.addEventListener('click', dodge);
+  no.addEventListener('focus', () => { no.blur(); dodge(); });
+  no.addEventListener('keydown', dodge);
+}
+
+function finish(){
+  hearts(40);
+  app.innerHTML = `
+    <h1>थैंक यू ${NAME} 🥹💗</h1>
+    <p>मुझे पता था तुम दिल की बहुत अच्छी हो।</p>
+    <div class="promise">
+      <p>💗 आगे से ऐसी गलती नहीं होगी।</p>
+      <p>💗 अगर कुछ बुरा लगे तो मैं पहले सुनूँगा, बहस नहीं करूँगा।</p>
+      <p>💗 तुम मेरे लिए बहुत ज़रूरी हो।</p>
+    </div>
+    <p>अब प्लीज़ मुझे एक मैसेज कर दो, मैं इंतज़ार कर रहा हूँ 🥺</p>`;
+}
+
+function hearts(n){
+  for (let i = 0; i < n; i++) {
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = ['💗','💖','💕','🌸'][i % 4];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.animationDuration = (4 + Math.random() * 4) + 's';
+    h.style.animationDelay = (Math.random() * 2) + 's';
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 10000);
+  }
+}
+
+intro();
+</script>
+</body>
+</html>
